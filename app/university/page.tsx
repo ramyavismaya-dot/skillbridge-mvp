@@ -84,7 +84,7 @@ export default function UniversityDashboard() {
               </thead>
               <tbody>
                 {students.map((s) => {
-                  const fit = topFits(s.riasec, s.skills, s.cognitive, 1)[0];
+                  const fit = topFits(s.riasec, s.skills, 1)[0];
                   return (
                     <tr key={s.id} className="border-b last:border-0">
                       <td className="py-2 pr-4">
