@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type { RiasecScores, SkillScores } from "./riasec";
-import type { CognitiveScores, ResponseValidity } from "./games";
+import type { ResponseValidity } from "./games";
 
 // --- Simple JSON-file persistence -------------------------------------
 // This is intentionally the simplest possible storage for an MVP demo:
@@ -23,7 +23,6 @@ export interface Student {
   createdAt: string;
   riasec: RiasecScores;
   skills: SkillScores; // self-reported
-  cognitive: CognitiveScores; // behavioral, from the Go/No-Go + Stroop games
   responseValidity: ResponseValidity;
   validityFlags: string[];
   narrative: string;
