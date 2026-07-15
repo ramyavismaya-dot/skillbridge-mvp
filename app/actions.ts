@@ -9,14 +9,7 @@ import {
   topFits,
   type SkillScores,
 } from "@/lib/riasec";
-import {
-  scoreGoNoGo,
-  scoreStroop,
-  computeCognitiveProfile,
-  computeResponseValidity,
-  type GoNoGoTrial,
-  type StroopTrial,
-} from "@/lib/games";
+import { computeResponseValidity } from "@/lib/games";
 import { generateReportNarrative } from "@/lib/ai";
 
 export interface AssessmentSubmission {
@@ -26,22 +19,16 @@ export interface AssessmentSubmission {
   attentionCheckAnswers: Record<string, number>;
   riasecResponseTimesMs: number[];
   skills: SkillScores;
-  goNoGoTrials: GoNoGoTrial[];
-  stroopTrials: StroopTrial[];
 }
 
 // Called directly from the client-side assessment wizard (not bound to a
-// <form action>), since the games require real-time client interactivity.
-// Next.js server actions can be imported and awaited directly like this.
+// <form action>). Next.js server actions can be imported and awaited
+// directly like this.
 export async function submitAssessment(data: AssessmentSubmission): Promise<{ studentId: string }> {
   const name = data.name.trim() || "Student";
   const email = data.email.trim();
 
   const riasec = computeRiasec(data.riasecAnswers);
-
-  const goNoGoResult = scoreGoNoGo(data.goNoGoTrials);
-  const stroopResult = scoreStroop(data.stroopTrials);
-  const cognitive = computeCognitiveProfile(goNoGoResult, stroopResult);
 
   const attentionChecksTotal = ATTENTION_CHECK_QUESTIONS.length;
   const attentionChecksPassed = ATTENTION_CHECK_QUESTIONS.filter(
@@ -62,11 +49,9 @@ export async function submitAssessment(data: AssessmentSubmission): Promise<{ st
     attentionChecksTotal,
     riasecAnswerVariance: variance,
     medianRiasecResponseMs,
-    goNoGo: goNoGoResult,
-    stroop: stroopResult,
   });
 
-  const fits = topFits(riasec, data.skills, cognitive, 5);
+  const fits = topFits(riasec, data.skills, 5);
   const narrative = await generateReportNarrative(name, riasec, fits);
 
   const student = addStudent({
@@ -74,7 +59,6 @@ export async function submitAssessment(data: AssessmentSubmission): Promise<{ st
     email,
     riasec,
     skills: data.skills,
-    cognitive,
     responseValidity: validity,
     validityFlags: flags,
     narrative,
