@@ -19,7 +19,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
   const students = getStudents();
   const ranked = students
     .map((s) => {
-      const score = computeFit(s.riasec, s.skills, roleLike, s.cognitive);
+      const score = computeFit(s.riasec, s.skills, roleLike);
       const matchedSkills: SkillId[] = [];
       const gapSkills: SkillId[] = [];
       for (const [skill, level] of Object.entries(job.skills) as [SkillId, number][]) {
