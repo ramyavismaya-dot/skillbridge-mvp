@@ -8,7 +8,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
   const student = getStudent(params.id);
   if (!student) return notFound();
 
-  const fits = topFits(student.riasec, student.skills, student.cognitive, 1);
+  const fits = topFits(student.riasec, student.skills, 1);
   const topRole = fits[0];
   const roadmap = topRole ? buildRoadmap(topRole.gapSkills) : [];
 
