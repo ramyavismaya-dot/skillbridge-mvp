@@ -4,41 +4,6 @@ import { getStudent } from "@/lib/db";
 import { RIASEC_CODES, RIASEC_LABELS, SKILL_LABELS, topFits } from "@/lib/riasec";
 import type { ResponseValidity } from "@/lib/games";
 
-const COGNITIVE_LABELS: Record<string, { label: string; blurb: (pct: number) => string }> = {
-  processingSpeed: {
-    label: "Processing speed",
-    blurb: (pct) => (pct >= 70
-      ? "Responded quickly and consistently on the attention game."
-      : pct >= 40
-      ? "Responded at a typical pace on the attention game."
-      : "Took longer than typical to respond on the attention game."),
-  },
-  sustainedAttention: {
-    label: "Sustained attention",
-    blurb: (pct) => (pct >= 70
-      ? "Maintained consistent attention with minimal missed responses."
-      : pct >= 40
-      ? "Some attention lapses during the longer task."
-      : "Noticeable attention lapses — missed a meaningful share of responses."),
-  },
-  impulseControl: {
-    label: "Impulse control",
-    blurb: (pct) => (pct >= 70
-      ? "Reliably held back from responding on \"stop\" trials."
-      : pct >= 40
-      ? "Occasionally responded when it should have held back."
-      : "Frequently responded on trials that called for holding back."),
-  },
-  cognitiveControl: {
-    label: "Cognitive control (focus under interference)",
-    blurb: (pct) => (pct >= 70
-      ? "Stayed accurate and fast even when the task tried to mislead."
-      : pct >= 40
-      ? "Some slowdown when the task tried to mislead — typical range."
-      : "Notable slowdown when the task's word and color conflicted."),
-  },
-};
-
 const VALIDITY_STYLES: Record<ResponseValidity, string> = {
   High: "bg-green-50 text-green-700 border-green-200",
   Medium: "bg-amber-50 text-amber-700 border-amber-200",
@@ -49,7 +14,7 @@ export default function ReportPage({ params }: { params: { id: string } }) {
   const student = getStudent(params.id);
   if (!student) return notFound();
 
-  const fits = topFits(student.riasec, student.skills, student.cognitive, 5);
+  const fits = topFits(student.riasec, student.skills, 5);
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -94,35 +59,9 @@ export default function ReportPage({ params }: { params: { id: string } }) {
         ))}
       </div>
 
-      {student.cognitive && (
-        <div className="card space-y-3">
-          <h2 className="font-semibold text-navy">Cognitive profile</h2>
-          <p className="text-xs text-gray-500">
-            Behavioral — measured from the two games, not self-rated. Provisional scoring; see the
-            README for what this does and doesn&apos;t validate yet.
-          </p>
-          {Object.entries(COGNITIVE_LABELS).map(([key, meta]) => {
-            const value = (student.cognitive as unknown as Record<string, number>)[key] ?? 0;
-            const pct = Math.round(value * 100);
-            return (
-              <div key={key} className="space-y-1">
-                <div className="flex justify-between text-sm text-gray-700">
-                  <span>{meta.label}</span>
-                  <span>{pct}%</span>
-                </div>
-                <div className="bar-track">
-                  <div className="bar-fill" style={{ width: `${pct}%` }} />
-                </div>
-                <p className="text-xs text-gray-500">{meta.blurb(pct)}</p>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       <div className="card space-y-3">
         <h2 className="font-semibold text-navy">Skill self-rating</h2>
-        <p className="text-xs text-gray-500">Self-reported — shown alongside the behavioral cognitive scores above, not instead of them.</p>
+        <p className="text-xs text-gray-500">Self-reported.</p>
         {Object.entries(student.skills).map(([skill, level]) => (
           <div key={skill} className="space-y-1">
             <div className="flex justify-between text-sm text-gray-700">
