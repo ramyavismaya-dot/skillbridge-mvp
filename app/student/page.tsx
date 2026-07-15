@@ -9,10 +9,7 @@ import {
   SKILL_LABELS,
   type SkillScores,
 } from "@/lib/riasec";
-import type { GoNoGoTrial, StroopTrial } from "@/lib/games";
 import { submitAssessment } from "@/app/actions";
-import GoNoGoGame from "./GoNoGoGame";
-import StroopGame from "./StroopGame";
 
 const LIKERT = [
   { v: 1, label: "Strongly disagree" },
@@ -31,7 +28,7 @@ const SKILL_LEVELS = [
   { v: 5, label: "Expert" },
 ];
 
-type Step = "intro" | "interests" | "gonogo" | "stroop" | "skills" | "submitting";
+type Step = "intro" | "interests" | "skills" | "submitting";
 
 interface MixedQuestion {
   id: string;
@@ -66,8 +63,6 @@ export default function StudentAssessmentPage() {
 
   const responseTimesRef = useRef<number[]>([]);
   const lastAnswerTimeRef = useRef<number>(0);
-  const goNoGoTrialsRef = useRef<GoNoGoTrial[]>([]);
-  const stroopTrialsRef = useRef<StroopTrial[]>([]);
 
   const mixedQuestions = useMemo<MixedQuestion[]>(() => {
     const riasecQs: MixedQuestion[] = RIASEC_QUESTIONS.map((q) => ({
@@ -122,8 +117,6 @@ export default function StudentAssessmentPage() {
         attentionCheckAnswers: attentionAnswers,
         riasecResponseTimesMs: responseTimesRef.current,
         skills,
-        goNoGoTrials: goNoGoTrialsRef.current,
-        stroopTrials: stroopTrialsRef.current,
       });
       router.push(`/student/report/${studentId}`);
     } catch {
@@ -138,9 +131,9 @@ export default function StudentAssessmentPage() {
         <div>
           <h1 className="text-2xl font-bold text-navy">Skills &amp; Interest Assessment</h1>
           <p className="text-gray-600 mt-1 text-sm">
-            About 8-9 minutes. This includes interest questions plus two short reaction/focus games —
-            the games measure things self-ratings can&apos;t (attention, impulse control, focus under
-            pressure), so your report rests on more than just what you say about yourself.
+            About 3-4 minutes. A few interest questions plus a quick skill self-rating — a couple of
+            items check that you&apos;re reading carefully, so your report is a bit more dependable
+            than a plain questionnaire.
           </p>
         </div>
         <div className="card space-y-4">
@@ -203,36 +196,10 @@ export default function StudentAssessmentPage() {
               </select>
             </div>
           ))}
-          <button className="btn-primary w-full text-center" onClick={() => setStep("gonogo")}>
-            Continue to Game 1
+          <button className="btn-primary w-full text-center" onClick={() => setStep("skills")}>
+            Continue to Skills
           </button>
         </div>
-      </div>
-    );
-  }
-
-  if (step === "gonogo") {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <GoNoGoGame
-          onComplete={(trials) => {
-            goNoGoTrialsRef.current = trials;
-            setStep("stroop");
-          }}
-        />
-      </div>
-    );
-  }
-
-  if (step === "stroop") {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <StroopGame
-          onComplete={(trials) => {
-            stroopTrialsRef.current = trials;
-            setStep("skills");
-          }}
-        />
       </div>
     );
   }
@@ -243,10 +210,7 @@ export default function StudentAssessmentPage() {
         <div className="card space-y-5">
           <div>
             <h2 className="font-semibold text-navy">Current skill level (self-reported)</h2>
-            <p className="text-xs text-gray-500 mt-1">
-              Last step. These are self-rated — shown next to your game-based cognitive scores in the
-              report, not instead of them.
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Last step.</p>
           </div>
           {SKILLS.map((s) => (
             <div key={s} className="space-y-1">
